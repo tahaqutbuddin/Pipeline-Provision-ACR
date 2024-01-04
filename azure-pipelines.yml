@@ -1,0 +1,20 @@
+trigger:
+  branches:
+    include:
+      - master
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+- script: |
+    terraform init
+    terraform validate
+  displayName: 'Terraform Init and Validate'
+
+- script: terraform plan -out=tfplan
+  displayName: 'Terraform Plan'
+
+- script: terraform apply -input=false tfplan
+  displayName: 'Terraform Apply'
+  condition: succeeded()
