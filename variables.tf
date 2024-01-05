@@ -15,6 +15,6 @@ variable "stack" {
   type = string
 }
 
-variable "storage_account_key" {
-  type = string 
-}
+# variable "storage_account_key" {
+#   type = string 
+# }
