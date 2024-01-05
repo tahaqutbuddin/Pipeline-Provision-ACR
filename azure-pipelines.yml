@@ -1,24 +1,24 @@
-trigger:
-- master
+# trigger:
+# - master
 
-pool:
-  vmImage: ubuntu-latest
+# pool:
+#   vmImage: ubuntu-latest
 
-variables:
-  ARM_CLIENT_ID: $(APP_ID)
-  ARM_CLIENT_SECRET: $(CLIENT_SECRET)
-  ARM_SUBSCRIPTION_ID: $(SUBSCRIPTION_ID)
-  ARM_TENANT_ID: $(TENANT_ID)
+# variables:
+#   ARM_CLIENT_ID: $(APP_ID)
+#   ARM_CLIENT_SECRET: $(CLIENT_SECRET)
+#   ARM_SUBSCRIPTION_ID: $(SUBSCRIPTION_ID)
+#   ARM_TENANT_ID: $(TENANT_ID)
 
-steps:
-- script: |
-    terraform init
-    terraform validate
-  displayName: 'Terraform Init and Validate'
+# steps:
+# - script: |
+#     terraform init
+#     terraform validate
+#   displayName: 'Terraform Init and Validate'
 
-- script: terraform plan -out=tfplan
-  displayName: 'Terraform Plan'
+# - script: terraform plan -out=tfplan
+#   displayName: 'Terraform Plan'
 
-- script: terraform apply -input=false tfplan
-  displayName: 'Terraform Apply'
-  condition: succeeded()
+# - script: terraform apply -input=false tfplan
+#   displayName: 'Terraform Apply'
+#   condition: succeeded()
