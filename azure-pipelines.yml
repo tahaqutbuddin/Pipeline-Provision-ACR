@@ -1,8 +1,8 @@
-# trigger:
-# - master
+trigger:
+- master
 
-# pool:
-#   vmImage: ubuntu-latest
+pool:
+  vmImage: ubuntu-latest
 
 # variables:
 #   ARM_CLIENT_ID: $(APP_ID)
@@ -10,15 +10,28 @@
 #   ARM_SUBSCRIPTION_ID: $(SUBSCRIPTION_ID)
 #   ARM_TENANT_ID: $(TENANT_ID)
 
-# steps:
-# - script: |
-#     terraform init
-#     terraform validate
-#   displayName: 'Terraform Init and Validate'
+steps:
+- task: TerraformInstaller@1
+  inputs:
+    terraformVersion: 'latest'
+- task: TerraformTaskV4@4
+  inputs:
+    provider: 'azurerm'
+    command: 'init'
+    backendServiceArm: 'logixos-azure-connection'
+    backendAzureRmResourceGroupName: 'terraformStorage'
+    backendAzureRmStorageAccountName: 'logixosterraform'
+    backendAzureRmContainerName: 'terraform'
+    backendAzureRmKey: 'terraform.tfstate'
+- task: TerraformTaskV4@4
+  inputs:
+    provider: 'azurerm'
+    command: 'plan'
+    environmentServiceNameAzureRM: 'logixos-azure-connection'
+- task: TerraformTaskV4@4
+  inputs:
+    provider: 'azurerm'
+    command: 'apply'
+    commandOptions: '--auto-approve'
+    environmentServiceNameAzureRM: 'logixos-azure-connection'
 
-# - script: terraform plan -out=tfplan
-#   displayName: 'Terraform Plan'
-
-# - script: terraform apply -input=false tfplan
-#   displayName: 'Terraform Apply'
-#   condition: succeeded()
