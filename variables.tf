@@ -1,6 +1,5 @@
 variable "client_name" {
   type        = string
-  description = "Client name/account used in naming."
   nullable    = false
 }
 
@@ -14,4 +13,8 @@ variable "environment" {
 
 variable "stack" {
   type = string
+}
+
+variable "storage_account_key" {
+  type = string 
 }
