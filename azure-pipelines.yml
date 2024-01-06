@@ -61,7 +61,7 @@ stages:
     displayName: Build job
     pool:
       vmImage: ubuntu-latest
-    depends_on: Infrastructure_Provisioning
+    dependsOn: Infrastructure_Provisioning
     steps:
     - task: DockerInstaller@0
       inputs:
