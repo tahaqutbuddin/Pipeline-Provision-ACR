@@ -37,7 +37,7 @@ stages:
           commandOptions: '--auto-approve'
           environmentServiceNameAzureRM: $(azure-connection)
 
-    - job: Set Pipeline variables
+    - job: Set_Pipeline_Variables
       steps:
       - task: PowerShell@2
         displayName: 'Capture Terraform output variables and push to pipeline variables'
