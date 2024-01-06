@@ -53,6 +53,7 @@ stages:
                 Write-Host("$($outputVar.name)-$($outputVar.value.value)")
               }
             }
+            
 
 - stage: Build_And_Deploy
   displayName: Build Docker image and publish stage
@@ -70,7 +71,7 @@ stages:
       displayName: Build and publish image to Azure Container Registry
       inputs:
         command: buildAndPush
-        containerRegistry: $(ACR_LOGIN_SERVER)
+        containerRegistry: ${{ variables.ACR_LOGIN_SERVER }}
         repository: "python-image"
         dockerfile: "**/Dockerfile"
 
