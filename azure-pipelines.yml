@@ -4,9 +4,6 @@ trigger:
 pool:
   vmImage: ubuntu-latest
 
-variables:
-  acrLoginServer: ''
-
 stages:
 - stage: Infrastructure_Provisioning
   displayName: "Provision ACR, Resource group on Azure"
@@ -39,11 +36,23 @@ stages:
           command: 'apply'
           commandOptions: '--auto-approve'
           environmentServiceNameAzureRM: $(azure-connection)
-      - task: TerraformTaskV4@4
+
+    - job: Set Pipeline variables
+      steps:
+      - task: PowerShell@2
+        displayName: 'Capture Terraform output variables and push to pipeline variables'
         inputs:
-          provider: 'azurerm'
-          command: 'output'
-          environmentServiceNameAzureRM: $(azure-connection)
+          targetType: 'inline'
+          script: |
+            $tfoutput = (terraform output --json) | ConvertFrom-Json
+            if ($tfoutput -eq $null) {
+              Write-Host("No Terraform output variables found")
+            } else {
+              foreach($outputVar in $tfoutput.psobject.properties) { 
+                Write-Host("##vso[task.setvariable variable=$($outputVar.name);]$($outputVar.value.value)")
+                Write-Host("$($outputVar.name)-$($outputVar.value.value)")
+              }
+            }
 
 - stage: Build_And_Deploy
   displayName: Build Docker image and publish stage
@@ -52,6 +61,7 @@ stages:
     displayName: Build job
     pool:
       vmImage: ubuntu-latest
+    depends_on: Infrastructure_Provisioning
     steps:
     - task: DockerInstaller@0
       inputs:
@@ -60,7 +70,7 @@ stages:
       displayName: Build and publish image to Azure Container Registry
       inputs:
         command: buildAndPush
-        containerRegistry: $(TF_OUT_ACR_LOGIN_SERVER)
+        containerRegistry: $(ACR_LOGIN_SERVER)
         repository: "python-image"
         dockerfile: "**/Dockerfile"
 
