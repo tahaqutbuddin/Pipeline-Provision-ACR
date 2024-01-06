@@ -4,6 +4,9 @@ trigger:
 pool:
   vmImage: ubuntu-latest
 
+variables:
+  acrLoginServer: ''
+
 stages:
 - stage: Infrastructure Provisioning
   displayName: "Provision ACR, Resource group on Azure"
@@ -35,6 +38,11 @@ stages:
           provider: 'azurerm'
           command: 'apply'
           commandOptions: '--auto-approve'
+          environmentServiceNameAzureRM: $(azure-connection)
+      - task: TerraformTaskV4@4
+        inputs:
+          provider: 'azurerm'
+          command: 'output'
           environmentServiceNameAzureRM: $(azure-connection)
 
 - stage: Deploy
