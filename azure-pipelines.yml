@@ -60,11 +60,9 @@ stages:
       displayName: Build and publish image to Azure Container Registry
       inputs:
         command: buildAndPush
-        containerRegistry: $(dockerRegistryServiceConnection)
-        repository: $(imageRepository)
-        dockerfile: $(dockerfilePath)
-        tags: |
-          $(tag)
+        containerRegistry: $(TF_OUT_ACR_LOGIN_SERVER)
+        repository: "python-image"
+        dockerfile: "**/Dockerfile"
 
 # steps:
 # - task: TerraformInstaller@1
