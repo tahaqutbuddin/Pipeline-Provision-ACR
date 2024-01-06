@@ -8,7 +8,7 @@ variables:
   acrLoginServer: ''
 
 stages:
-- stage: Infrastructure Provisioning
+- stage: Infrastructure_Provisioning
   displayName: "Provision ACR, Resource group on Azure"
   jobs:
     - job: Provision
@@ -45,7 +45,7 @@ stages:
           command: 'output'
           environmentServiceNameAzureRM: $(azure-connection)
 
-- stage: Deploy
+- stage: Build_And_Deploy
   displayName: Build Docker image and publish stage
   jobs:
   - job: Build
