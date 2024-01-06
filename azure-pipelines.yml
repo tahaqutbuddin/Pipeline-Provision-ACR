@@ -56,12 +56,12 @@ stages:
 
 - stage: Build_And_Deploy
   displayName: Build Docker image and publish stage
+  dependsOn: Infrastructure_Provisioning
   jobs:
   - job: Build
     displayName: Build job
     pool:
       vmImage: ubuntu-latest
-    dependsOn: Infrastructure_Provisioning
     steps:
     - task: DockerInstaller@0
       inputs:
