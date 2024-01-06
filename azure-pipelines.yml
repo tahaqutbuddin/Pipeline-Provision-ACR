@@ -4,12 +4,6 @@ trigger:
 pool:
   vmImage: ubuntu-latest
 
-# variables:
-#   ARM_CLIENT_ID: $(APP_ID)
-#   ARM_CLIENT_SECRET: $(CLIENT_SECRET)
-#   ARM_SUBSCRIPTION_ID: $(SUBSCRIPTION_ID)
-#   ARM_TENANT_ID: $(TENANT_ID)
-
 steps:
 - task: TerraformInstaller@1
   inputs:
@@ -18,20 +12,20 @@ steps:
   inputs:
     provider: 'azurerm'
     command: 'init'
-    backendServiceArm: 'logixos-azure-connection'
-    backendAzureRmResourceGroupName: 'terraformStorage'
-    backendAzureRmStorageAccountName: 'logixosterraform'
-    backendAzureRmContainerName: 'terraform'
-    backendAzureRmKey: 'terraform.tfstate'
+    backendServiceArm: $(azure-connection)
+    backendAzureRmResourceGroupName: $(storage-resource-group)
+    backendAzureRmStorageAccountName: $(storage-account)
+    backendAzureRmContainerName: $(storage-container)
+    backendAzureRmKey: $(storage-key)
 - task: TerraformTaskV4@4
   inputs:
     provider: 'azurerm'
     command: 'plan'
-    environmentServiceNameAzureRM: 'logixos-azure-connection'
+    environmentServiceNameAzureRM: $(azure-connection)
 - task: TerraformTaskV4@4
   inputs:
     provider: 'azurerm'
     command: 'apply'
     commandOptions: '--auto-approve'
-    environmentServiceNameAzureRM: 'logixos-azure-connection'
+    environmentServiceNameAzureRM: $(azure-connection)
 
