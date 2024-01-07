@@ -40,37 +40,39 @@ stages:
         displayName: 'Capture Terraform output variables and push to pipeline variables'
         inputs:
           targetType: 'inline'
-          # script: |
-          #   $tfoutput = (terraform output --json) | ConvertFrom-Json
-          #   if ($tfoutput -eq $null) {
-          #     Write-Host("No Terraform output variables found")
-          #   } else {
-          #     foreach($outputVar in $tfoutput.psobject.properties) { 
-          #       Write-Host("##vso[task.setvariable variable=$($outputVar.name);]$($outputVar.value.value)")
-          #       Write-Host("$($outputVar.name)-$($outputVar.value.value)")
-          #     }
-          #   }
           script: |
+            $tfoutput = (terraform output --json) | ConvertFrom-Json
             if ($tfoutput -eq $null) {
-              Write-Output "No Terraform output variables found"
+              Write-Host("No Terraform output variables found")
             } else {
-              $outputVariables = @{}
-              foreach ($outputVar in $tfoutput.psobject.properties) { 
-                $variableName = $outputVar.name
-                $variableValue = $outputVar.value.value
-                Write-Output "$variableName-$variableValue"
-                $outputVariables[$variableName] = $variableValue
+              foreach($outputVar in $tfoutput.psobject.properties) { 
+                Write-Host("##vso[task.setvariable variable=$($outputVar.name);isoutput=true]$($outputVar.value.value)")
+                Write-Host("$($outputVar.name)-$($outputVar.value.value)")
               }
-              Write-Output "##vso[task.setvariable variable=outputVariables;]$(ConvertTo-Json $outputVariables -Depth 5)"
             }
+          # script: |
+          #   if ($tfoutput -eq $null) {
+          #     Write-Output "No Terraform output variables found"
+          #   } else {
+          #     $outputVariables = @{}
+          #     foreach ($outputVar in $tfoutput.psobject.properties) { 
+          #       $variableName = $outputVar.name
+          #       $variableValue = $outputVar.value.value
+          #       Write-Output "$variableName-$variableValue"
+          #       $outputVariables[$variableName] = $variableValue
+          #     }
+          #     Write-Output "##vso[task.setvariable variable=outputVariables;]$(ConvertTo-Json $outputVariables -Depth 5)"
+          #   }
             
 
 - stage: Build_And_Deploy
   displayName: Build Docker image and publish stage
-  dependsOn: Infrastructure_Provisioning
   jobs:
   - job: Build
     displayName: Build job
+    dependsOn: Provision
+    variables:
+      acr_login_server: $[ dependencies.Provision.outputs['passOutput.acr_login_server'] ]  
     pool:
       vmImage: ubuntu-latest
     steps:
@@ -81,9 +83,10 @@ stages:
       displayName: Build and publish image to Azure Container Registry
       inputs:
         command: buildAndPush
-        containerRegistry: $outputVariables["acr_login_server"]
+        containerRegistry: $(acr_login_server)
         repository: "python-image"
         dockerfile: "**/Dockerfile"
+
 
 # steps:
 # - task: TerraformInstaller@1
