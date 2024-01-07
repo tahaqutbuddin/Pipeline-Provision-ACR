@@ -37,7 +37,10 @@ stages:
           commandOptions: '--auto-approve'
           environmentServiceNameAzureRM: $(azure-connection)
 
-    - job: Set Pipeline variables
+    - job: Set_Pipeline_Variables
+      pool: 
+        vmImage: ubuntu-latest
+      dependsOn: Provision
       steps:
       - task: PowerShell@2
         displayName: 'Capture Terraform output variables and push to pipeline variables'
@@ -53,15 +56,16 @@ stages:
                 Write-Host("$($outputVar.name)-$($outputVar.value.value)")
               }
             }
+            
 
 - stage: Build_And_Deploy
   displayName: Build Docker image and publish stage
+  dependsOn: Infrastructure_Provisioning
   jobs:
   - job: Build
     displayName: Build job
     pool:
       vmImage: ubuntu-latest
-    depends_on: Infrastructure_Provisioning
     steps:
     - task: DockerInstaller@0
       inputs:
@@ -70,7 +74,7 @@ stages:
       displayName: Build and publish image to Azure Container Registry
       inputs:
         command: buildAndPush
-        containerRegistry: $(ACR_LOGIN_SERVER)
+        containerRegistry: ${{ variables.ACR_LOGIN_SERVER }}
         repository: "python-image"
         dockerfile: "**/Dockerfile"
 
