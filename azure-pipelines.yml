@@ -36,12 +36,6 @@ stages:
           command: 'apply'
           commandOptions: '--auto-approve'
           environmentServiceNameAzureRM: $(azure-connection)
-
-    - job: Set_Pipeline_Variables
-      pool: 
-        vmImage: ubuntu-latest
-      dependsOn: Provision
-      steps:
       - task: PowerShell@2
         displayName: 'Capture Terraform output variables and push to pipeline variables'
         inputs:
