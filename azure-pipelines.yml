@@ -68,7 +68,7 @@ stages:
       displayName: Build and publish image to Azure Container Registry
       inputs:
         command: buildAndPush
-        containerRegistry: $(acr_login_server)
+        containerRegistry: ${{variables.acr_login_server}}
         repository: "python-image"
         dockerfile: "**/Dockerfile"
 
