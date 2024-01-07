@@ -1,8 +1,16 @@
 trigger:
 - master
 
-pool:
-  vmImage: ubuntu-latest
+resources:
+- repo: self
+
+variables:
+  dockerRegistryServiceConnection: '50547261-744a-4857-99ba-6037065cb44c'
+  imageRepository: 'tahaqutbuddinlogixostask'
+  containerRegistry: 'logixoscontainerreg.azurecr.io'
+  dockerfilePath: '$(Build.SourcesDirectory)/Dockerfile'
+  tag: '$(Build.BuildId)'
+  vmImageName: 'ubuntu-latest'
 
 stages:
 - stage: Infrastructure_Provisioning
@@ -11,7 +19,7 @@ stages:
     - job: Provision
       displayName: Validate and provision
       pool:
-        vmImage: ubuntu-latest
+        vmImage: $(vmImageName)
       steps:
       - task: TerraformInstaller@1
         inputs:
@@ -50,25 +58,12 @@ stages:
                 Write-Host("$($outputVar.name)-$($outputVar.value.value)")
               }
             }
-          # script: |
-          #   if ($tfoutput -eq $null) {
-          #     Write-Output "No Terraform output variables found"
-          #   } else {
-          #     $outputVariables = @{}
-          #     foreach ($outputVar in $tfoutput.psobject.properties) { 
-          #       $variableName = $outputVar.name
-          #       $variableValue = $outputVar.value.value
-          #       Write-Output "$variableName-$variableValue"
-          #       $outputVariables[$variableName] = $variableValue
-          #     }
-          #     Write-Output "##vso[task.setvariable variable=outputVariables;]$(ConvertTo-Json $outputVariables -Depth 5)"
-          #   }
     - job: Build_Docker_And_Deploy
       dependsOn: Provision
       variables:
         acr_login_server: $[ dependencies.Provision.outputs['passOutput.acr_login_server'] ]  
       pool:
-        vmImage: ubuntu-latest
+        vmImage: $(vmImageName)
       steps:
       - task: DockerInstaller@0
         inputs:
@@ -76,10 +71,12 @@ stages:
       - task: Docker@2
         displayName: Build and publish image to Azure Container Registry
         inputs:
-          containerRegistry: 'acr-connection'
-          repository: 'python-image'
-          command: 'buildAndPush'
-          Dockerfile: '**/Dockerfile'
+          command: buildAndPush
+          repository: $(imageRepository)
+          dockerfile: $(dockerfilePath)
+          containerRegistry: $(dockerRegistryServiceConnection)
+          tags: |
+            $(tag)
 
 
 # steps:
