@@ -1,5 +1,1 @@
-client_name = "tahaqutbuddin"
-region      = "eastus"
-environment = "dev"
-stack       = "logixos"
-# storage_account_key = ""
+region = "East US"

@@ -8,10 +8,9 @@ terraform {
 
   backend "azurerm" {
     storage_account_name = "logixosterraform"
-    container_name = "terraform"
-    key = "terraform.tfstate"
-    resource_group_name = "terraformStorage"
-    # access_key = var.storage_account_key
+    container_name       = "terraform"
+    key                  = "terraform.tfstate"
+    resource_group_name  = "terraformStorage"
   }
 }
 
