@@ -5,10 +5,7 @@ resources:
 - repo: self
 
 variables:
-  dockerRegistryServiceConnection: '50547261-744a-4857-99ba-6037065cb44c'
-  imageRepository: 'tahaqutbuddinlogixostask'
   containerRegistry: 'logixoscontainerreg.azurecr.io'
-  dockerfilePath: '$(Build.SourcesDirectory)/Dockerfile'
   tag: '$(Build.BuildId)'
   vmImageName: 'ubuntu-latest'
 
@@ -44,24 +41,8 @@ stages:
           command: 'apply'
           commandOptions: '--auto-approve'
           environmentServiceNameAzureRM: $(azure-connection)
-      - task: PowerShell@2
-        displayName: 'Capture Terraform output variables and push to pipeline variables'
-        inputs:
-          targetType: 'inline'
-          script: |
-            $tfoutput = (terraform output --json) | ConvertFrom-Json
-            if ($tfoutput -eq $null) {
-              Write-Host("No Terraform output variables found")
-            } else {
-              foreach($outputVar in $tfoutput.psobject.properties) { 
-                Write-Host("##vso[task.setvariable variable=$($outputVar.name);isoutput=true]$($outputVar.value.value)")
-                Write-Host("$($outputVar.name)-$($outputVar.value.value)")
-              }
-            }
     - job: Build_Docker_And_Deploy
       dependsOn: Provision
-      variables:
-        acr_login_server: $[ dependencies.Provision.outputs['passOutput.acr_login_server'] ]  
       pool:
         vmImage: $(vmImageName)
       steps:
@@ -72,37 +53,8 @@ stages:
         displayName: Build and publish image to Azure Container Registry
         inputs:
           command: buildAndPush
-          repository: $(imageRepository)
-          dockerfile: $(dockerfilePath)
-          containerRegistry: $(dockerRegistryServiceConnection)
+          repository: $(image-repository)
+          dockerfile: $(docker-file-path)
+          containerRegistry: $(docker-registry-service-connection)
           tags: |
             $(tag)
-
-
-# steps:
-# - task: TerraformInstaller@1
-#   inputs:
-#     terraformVersion: 'latest'
-# - task: TerraformTaskV4@4
-#   inputs:
-#     provider: 'azurerm'
-#     command: 'init'
-#     backendServiceArm: $(azure-connection)
-#     backendAzureRmResourceGroupName: $(storage-resource-group)
-#     backendAzureRmStorageAccountName: $(storage-account)
-#     backendAzureRmContainerName: $(storage-container)
-#     backendAzureRmKey: $(storage-key)
-# - task: TerraformTaskV4@4
-#   inputs:
-#     provider: 'azurerm'
-#     command: 'plan'
-#     environmentServiceNameAzureRM: $(azure-connection)
-# - task: TerraformTaskV4@4
-#   inputs:
-#     provider: 'azurerm'
-#     command: 'apply'
-#     commandOptions: '--auto-approve'
-#     environmentServiceNameAzureRM: $(azure-connection)
-
-
-
