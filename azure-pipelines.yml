@@ -51,7 +51,7 @@ stages:
               Write-Host("No Terraform output variables found")
             } else {
               foreach($outputVar in $tfoutput.psobject.properties) { 
-                Write-Host("##vso[task.setvariable variable=$($outputVar.name);isoutput=true]$($outputVar.value.value)")
+                Write-Host("##vso[task.setvariable variable=$($outputVar.name);]$($outputVar.value.value)")
                 Write-Host("$($outputVar.name)-$($outputVar.value.value)")
               }
             }
@@ -69,6 +69,6 @@ stages:
           command: buildAndPush
           repository: $(image-repository)
           dockerfile: $(docker-file-path)
-          containerRegistry: $(docker-registry-service-connection)
+          containerRegistry: $(acr_login_server)
           tags: |
             $(tag)
