@@ -69,6 +69,6 @@ stages:
           command: buildAndPush
           repository: $(image-repository)
           dockerfile: $(docker-file-path)
-          containerRegistry: $(acr_login_server)
+          containerRegistry: $(logixos-azure-connection)
           tags: |
             $(tag)
