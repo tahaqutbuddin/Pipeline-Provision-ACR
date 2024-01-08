@@ -41,6 +41,20 @@ stages:
           command: 'apply'
           commandOptions: '--auto-approve'
           environmentServiceNameAzureRM: $(azure-connection)
+      - task: PowerShell@2
+        displayName: 'Capture Terraform output variables and push to pipeline variables'
+        inputs:
+          targetType: 'inline'
+          script: |
+            $tfoutput = (terraform output --json) | ConvertFrom-Json
+            if ($tfoutput -eq $null) {
+              Write-Host("No Terraform output variables found")
+            } else {
+              foreach($outputVar in $tfoutput.psobject.properties) { 
+                Write-Host("##vso[task.setvariable variable=$($outputVar.name);isoutput=true]$($outputVar.value.value)")
+                Write-Host("$($outputVar.name)-$($outputVar.value.value)")
+              }
+            }
     - job: Build_Docker_And_Deploy
       dependsOn: Provision
       pool:
