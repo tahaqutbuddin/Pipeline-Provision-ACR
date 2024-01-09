@@ -66,8 +66,8 @@ stages:
       - task: Docker@2
         inputs:
           command: 'build'
-          Dockerfile: '**/Dockerfile'
-          repository: "pythonimage"
+          Dockerfile: $(docker-file-path)
+          repository: "pythonimage:latest"
       - task: AzureCLI@2
         displayName: 'Push Docker Image to ACR'
         inputs:
