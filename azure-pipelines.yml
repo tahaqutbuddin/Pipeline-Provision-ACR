@@ -41,20 +41,6 @@ stages:
           command: 'apply'
           commandOptions: '--auto-approve'
           environmentServiceNameAzureRM: $(azure-connection)
-      # - task: PowerShell@2
-      #   displayName: 'Capture Terraform output variables and push to pipeline variables'
-      #   inputs:
-      #     targetType: 'inline'
-      #     script: |
-      #       $tfoutput = (terraform output --json) | ConvertFrom-Json
-      #       if ($tfoutput -eq $null) {
-      #         Write-Host("No Terraform output variables found")
-      #       } else {
-      #         foreach($outputVar in $tfoutput.psobject.properties) { 
-      #           Write-Host("##vso[task.setvariable variable=$($outputVar.name);]$($outputVar.value.value)")
-      #           Write-Host("$($outputVar.name)-$($outputVar.value.value)")
-      #         }
-      #       }
     - job: Build_Docker_And_Deploy
       dependsOn: Provision
       pool:
@@ -67,7 +53,7 @@ stages:
         inputs:
           command: 'build'
           Dockerfile: $(docker-file-path)
-          repository: "pythonimage"
+          repository: $(image-repository)
           tags: $(Build.BuildId)
       - task: AzureCLI@2
         displayName: 'Push Docker Image to ACR'
@@ -77,5 +63,5 @@ stages:
           scriptLocation: 'inlineScript'
           inlineScript: |
             az acr login --name 'logixoscontainerreg'
-            docker tag pythonimage:$(Build.BuildId) logixoscontainerreg.azurecr.io/pythonimage:$(Build.BuildId)
-            docker push logixoscontainerreg.azurecr.io/pythonimage:$(Build.BuildId)
+            docker tag $(image-repository):$(Build.BuildId) logixoscontainerreg.azurecr.io/$(image-repository):$(Build.BuildId)
+            docker push logixoscontainerreg.azurecr.io/$(image-repository):$(Build.BuildId)
