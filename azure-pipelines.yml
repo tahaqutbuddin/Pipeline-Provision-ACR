@@ -72,7 +72,7 @@ stages:
         displayName: 'Push Docker Image to ACR'
         inputs:
           azureSubscription: $(azure-connection)
-          scriptType: 'ps'
+          scriptType: 'pscore'
           scriptLocation: 'inlineScript'
           inlineScript: |
             az acr login --name 'logixoscontainerreg'
