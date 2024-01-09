@@ -68,6 +68,7 @@ stages:
           command: 'build'
           Dockerfile: $(docker-file-path)
           repository: "pythonimage"
+          tags: $(Build.BuildId)
       - task: AzureCLI@2
         displayName: 'Push Docker Image to ACR'
         inputs:
@@ -76,5 +77,5 @@ stages:
           scriptLocation: 'inlineScript'
           inlineScript: |
             az acr login --name 'logixoscontainerreg'
-            docker tag pythonimage logixoscontainerreg.azurecr.io/pythonimage:latest
-            docker push logixoscontainerreg.azurecr.io/pythonimage:latest
+            docker tag pythonimage:$(Build.BuildId) logixoscontainerreg.azurecr.io/pythonimage:$(Build.BuildId)
+            docker push logixoscontainerreg.azurecr.io/pythonimage:$(Build.BuildId)
