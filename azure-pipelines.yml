@@ -71,7 +71,7 @@ stages:
       - task: AzureCLI@2
         displayName: 'Push Docker Image to ACR'
         inputs:
-          azureSubscription: $(logixos-azure-connection)
+          azureSubscription: $(azure-connection)
           scriptType: 'ps'
           scriptLocation: 'inlineScript'
           inlineScript: |
